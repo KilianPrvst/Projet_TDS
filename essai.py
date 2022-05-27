@@ -17,13 +17,13 @@ import matplotlib.pyplot as plt
 from scipy.io.wavfile import read
 
 songs = [item for item in os.listdir('./samples') if item[:-4] != '.wav']
-song1 = songs[3]
-song2 = songs[1]
+song1 = random.choice(songs)
+song2 = random.choice([elt for elt in songs if elt != song1])
 #random.choice(songs)
-print('Selected song: ' + song1[:-4])
+print('first selected song: ' + song1[:-4])
 filename1 = './samples/' + song1
 
-print('Selected song: ' + song2[:-4])
+print('second selected song: ' + song2[:-4])
 filename2 = './samples/' + song2
 
 fs, s = read(filename1)
@@ -45,11 +45,19 @@ f2, t2, Sxx2 = scipy.signal.spectrogram(s2, fs2)
 #return_onesided=False
 
 #Calcul de l'énergie
-def energie(f):
-    E = 0
-    for a in f :
-        E += a ** 2
-    return E
+def energie_min(Sxx):
+    E_tot = np.sum(Sxx**2)
+    print(f"l'énergie du signal est {E_tot}")
+    E,i = 0,0
+    F,T = Sxx.shape
+    while E < 0.9*E_tot:            #on calcule l'énergie sur la durée entière, en ajoutant à chaque fois de nouvelles fréquences.
+        E += np.sum(Sxx[i]**2) 
+        i += 1
+    print(f"la nouvelle énergie est {E}, soit {1 - (E_tot - E)/E} % de la valeur initiale et le nombre de fréquences est {i}")
+    return i
+
+
+
 
 #plt.pcolormesh(t, fftshift(f), fftshift(Sxx, axes=0), shading='gouraud')
 #plt.pcolormesh(t, f, Sxx, shading='gouraud')
@@ -58,17 +66,10 @@ def energie(f):
 #plt.show()
 #On trouve une figure uniforme et donc une concentration uniforme de l'énergie
 #Cherchons le nombre minimal pour avoir 90% de l'énergie de la chanson : Frisk - Au.Ra
-E = energie(f)
-print(f"l'énergie du signal est {E}")
-new_f = f
-new_E = energie(new_f)
-print(len(f))
-while new_E >= 0.9 * E :
-    new_f = new_f[:-2]
-    new_E = energie(new_f)
-print(f"la nouvelle énergie est {new_E}, soit {1 - (E - new_E)/E} % de la valeur initiale et le nombre de fréquences est {len(new_f)}")
-#On trouve donc que l'on concentre 90% de l'énergie sur 180 fréquences
 
+energie_min(Sxx)
+
+#On trouve donc que l'on concentre 90% de l'énergie sur 180 fréquences
 #Trouver le bons nombres de maximums
 coord_maxima = peak_local_max(Sxx, min_distance = 100, exclude_border = False)
 coord_maxima2 = peak_local_max(Sxx2, min_distance = 100, exclude_border = False)

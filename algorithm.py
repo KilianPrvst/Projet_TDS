@@ -28,7 +28,6 @@ class Encoding:
     - create hashes using these maxima
 
     """
-
     def __init__(self):
 
         """
@@ -49,9 +48,14 @@ class Encoding:
         """
 
         # Insert code here
-        self.window = scipy.signal.get_window('triang', 128)
-        self.window_size = len(self.window)
-
+        self.fs, self.sample = read(path)
+        #POUR TESTER PLUS VITE
+        self.sample = self.sample[:10000]
+        self.window = 128
+        self.noverlap = 32
+        self.n_coeff = len(self.sample)
+      #   self.window = scipy.signal.get_window('triang', 128)
+      #   self.window_size = len(self.window)
 
     def process(self, fs, s):
 
@@ -88,39 +92,37 @@ class Encoding:
         """
 
         # Insert code here
+        self.spectr = spectrogram(self.sample,self.fs,nperseg = self.window,noverlap = self.noverlap)
+        self.f, self.t, self.Sxx = self.spectr
+        
+        
+        def display_spectrogram(self):
+           plt.pcolormesh(self.t,self.f,self.Sxx)
         #self.spec = scipy.signal.spectrogram(s, fs, self.window, noverlap = 32)
-        self.f = scipy.signal.spectrogram(s, fs, return_onesided=False)[0]
-        self.t = scipy.signal.spectrogram(s, fs, return_onesided=False)[1]
-        self.Sxx = scipy.signal.spectrogram(s, fs, return_onesided=False)[2]
+        #self.f, self.t, self.Sxx = scipy.signal.spectrogram(s, fs, return_onesided=False)
         self.maxi = peak_local_max(self.Sxx, min_distance=1, indices=True, exclude_border = False)
         #Construisons la constellation du morceau:
-         delta_t = 0.01
-         def constellation(delta_t,coord_maxima):
-            hash = {}
-            x = coord_maxima[:,0]
-            y = coord_maxima[:,1]
-            for i in range(len(x)):
-               for j in range(i,len(x)):
-                     if abs(x[i] - x[j]) < delta_t and abs(y[i] - y[j]):
-                        hash[f"{i}"] = {abs(i - j), y[i],y[j]}
-            return hash
-            
-         self.constellation = constellation(self.t, self.maxi)
-         return self.constellation
+        delta_t = 0.01
+        def constellation(delta_t,coord_maxima):
+           hash = {}
+           x = coord_maxima[:,0]
+           y = coord_maxima[:,1]
+           for i in range(len(x)):
+              for j in range(i,len(x)):
+                 if abs(x[i] - x[j]) < delta_t and abs(y[i] - y[j]):
+                    hash[f"{i}"] = {abs(i - j), y[i],y[j]}
+                    return hash
+        self.constellation = constellation(self.t, self.maxi)
+        return self.constellation
 
     def display_spectrogram(self):
-
-        """
-        Display the spectrogram of the audio signal
-        """
-
-        # Insert code here
-       #Représentation 2D
       f, t, Sxx = scipy.signal.spectrogram(s, fs, return_onesided=False)
       plt.pcolormesh(t, fftshift(f), fftshift(Sxx, axes=0), shading='gouraud')
       plt.ylabel('Frequency [Hz]')
       plt.xlabel('Time [sec]')
       plt.show()
+
+
         
 
 
@@ -204,24 +206,25 @@ class Matching:
 
              
     def display_scatterplot(self):
-
-        """
+       """
         Display through a scatterplot the times associated to the hashes
         that match
         """
     
-        # Insert code here
-      keys1 = hashes1.key()
-        keys2 = hashes2.key()
-        time_cloud = [[],[]]
-        for k1 in keys1:
+       
+       keys1 = hashes1.key()
+       keys2 = hashes2.key()
+       time_cloud = [[],[]]
+       for k1 in keys1:
            for k2 in keys2:
               if k1 == k2:
                  time_cloud[0].append(k1 - hashes1[f"k1"][0])
                  time_cloud[1].append(k2 - hashes2[f"k2"][0])
-         plt.scatter(time_cloud[0],time_cloud[1])
-         plt.show()
+       plt.scatter(time_cloud[0],time_cloud[1])
+       plt.show()
 
+
+      
 
     def display_histogram(self):
 
