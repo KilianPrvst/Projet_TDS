@@ -28,7 +28,7 @@ class Encoding:
     - create hashes using these maxima
 
     """
-    def __init__(self):
+    def __init__(self, path):
 
         """
         Class constructor
@@ -94,15 +94,24 @@ class Encoding:
         # Insert code here
         self.spectr = spectrogram(self.sample,self.fs,nperseg = self.window,noverlap = self.noverlap)
         self.f, self.t, self.Sxx = self.spectr
-        
-        
+
         def display_spectrogram(self):
            plt.pcolormesh(self.t,self.f,self.Sxx)
         #self.spec = scipy.signal.spectrogram(s, fs, self.window, noverlap = 32)
         #self.f, self.t, self.Sxx = scipy.signal.spectrogram(s, fs, return_onesided=False)
-        self.maxi = peak_local_max(self.Sxx, min_distance=1, indices=True, exclude_border = False)
+        def compare_distance(self):
+           dist_list = [1,10,50,100,500,1000]
+           for distance in dist_list:
+              mask_maxi = peak_local_max(self.Sxx, min_distance=distance, exclude_border = False)
+              constellation = self.Sxx[self.maxi]
+              E = np.sum(constellation**2)
+              nb_max = np.sum(self.mask_maxi)
+              print(f"distance : "{distance}, "énergie :"{E},"nombre de maxima :"{nb_max})
+
         #Construisons la constellation du morceau:
         delta_t = 0.01
+
+        
         def constellation(delta_t,coord_maxima):
            hash = {}
            x = coord_maxima[:,0]
@@ -114,13 +123,6 @@ class Encoding:
                     return hash
         self.constellation = constellation(self.t, self.maxi)
         return self.constellation
-
-    def display_spectrogram(self):
-      f, t, Sxx = scipy.signal.spectrogram(s, fs, return_onesided=False)
-      plt.pcolormesh(t, fftshift(f), fftshift(Sxx, axes=0), shading='gouraud')
-      plt.ylabel('Frequency [Hz]')
-      plt.xlabel('Time [sec]')
-      plt.show()
 
 
         
