@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from essai import constellation
 import scipy
+from matplotlib import colors
 
 from scipy.io.wavfile import read
 from scipy.signal import spectrogram
@@ -96,7 +97,7 @@ class Encoding:
         self.f, self.t, self.Sxx = self.spectr
 
         def display_spectrogram(self):
-           plt.pcolormesh(self.t,self.f,self.Sxx)
+           plt.pcolormesh(self.t,self.f,self.Sxx, norm=colors.LogNorm)
         #self.spec = scipy.signal.spectrogram(s, fs, self.window, noverlap = 32)
         #self.f, self.t, self.Sxx = scipy.signal.spectrogram(s, fs, return_onesided=False)
         def compare_distance(self):

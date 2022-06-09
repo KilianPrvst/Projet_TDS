@@ -34,9 +34,9 @@ if __name__ == '__main__':
     for filename in audiofiles :
         fs, s = read(filename)
         table_fs_s.append([fs, s])
-    tmin = int(50*fs) # We select an extract starting at 50s ...
-    duration = int(10*fs) # ... which lasts 10s
-
+    tmin = 50 # We select an extract starting at 50s ...
+    duration = 10 # ... which lasts 10s
+    
     # 3: Construct the database
     database = []
     # Insert your code here
